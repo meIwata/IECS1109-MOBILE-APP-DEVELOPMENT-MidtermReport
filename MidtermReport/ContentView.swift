@@ -15,6 +15,58 @@ struct ContentView: View {
     @State private var isShaking = false
     let service = WeatherService()
     
+    // 判斷是否為白天
+    private var isDaytime: Bool {
+        guard let weather = weather else { return true }
+        
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        inputFormatter.locale = Locale(identifier: "en_US_POSIX")
+        
+        if let date = inputFormatter.date(from: weather.location.localtime) {
+            let hour = Calendar.current.component(.hour, from: date)
+            return hour >= 6 && hour < 18 // 6:00-17:59 為白天
+        }
+        return true
+    }
+    
+    // 背景漸層
+    private var backgroundGradient: LinearGradient {
+        if weather == nil {
+            // 還沒查詢時保持白色背景
+            return LinearGradient(
+                gradient: Gradient(colors: [Color.white, Color.white]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else if isDaytime {
+            // 白天背景
+            return LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0x8e/255.0, green: 0xc5/255.0, blue: 0xfc/255.0),
+                    Color(red: 0xe0/255.0, green: 0xc3/255.0, blue: 0xfc/255.0)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            // 晚上背景
+            return LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0x0a/255.0, green: 0x2a/255.0, blue: 0x4a/255.0),
+                    Color(red: 0x27/255.0, green: 0x08/255.0, blue: 0x45/255.0)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+    
+    // 文字顏色
+    private var textColor: Color {
+        return weather == nil ? Color.black : Color.white
+    }
+    
     var body: some View {
         VStack(spacing: 20) {
             TextField("輸入城市", text: $city)
@@ -36,27 +88,38 @@ struct ContentView: View {
             
             if isLoading {
                 ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: textColor))
             }
             
             if let w = weather {
                 HStack {
                     Image(systemName: "dot.scope")
+                        .foregroundColor(textColor)
                     Text("\(w.location.name), \(w.location.country)")
                         .font(.system(size: 32, weight: .bold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.1)
                         .layoutPriority(1)
+                        .foregroundColor(textColor)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 
-                LocalTimeView(localTime: w.location.localtime) // <--- 傳入 API 拿到的當地時間
+                LocalTimeView(localTime: w.location.localtime, textColor: textColor) // 傳入文字顏色
+                
                 Text("目前天氣：\(w.current.condition.text)")
+                    .foregroundColor(textColor)
+                
                 Text("溫度：\(showFahrenheit ? (w.current.temp_c * 9/5 + 32) : w.current.temp_c, specifier: "%.1f")\(showFahrenheit ? "°F" : "°C")")
+                    .foregroundColor(textColor)
                     .onTapGesture {
                         showFahrenheit.toggle()
                     }
+                
                 Text("濕度：\(w.current.humidity)%")
+                    .foregroundColor(textColor)
+                
                 Text("紫外線指數：\(w.current.uv == 0 ? "0" : String(format: "%.1f", w.current.uv))")
+                    .foregroundColor(textColor)
                 
                 AsyncImage(url: URL(string: "https:\(w.current.condition.icon)")) { image in
                     image
@@ -68,12 +131,16 @@ struct ContentView: View {
                         }
                 } placeholder: {
                     ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: textColor))
                 }
                 .id(w.current.condition.icon)
             }
         }
         .padding()
         .frame(width: 300)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(backgroundGradient)
+        .animation(.easeInOut(duration: 0.5), value: weather?.location.localtime)
     }
     
     // 持續旋轉動畫
