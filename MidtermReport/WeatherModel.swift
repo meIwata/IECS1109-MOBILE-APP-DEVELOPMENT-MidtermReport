@@ -20,6 +20,8 @@ struct Location: Codable {
 struct Current: Codable {
     let temp_c: Double
     let condition: Condition
+    let humidity: Int      // ← 加上濕度
+    let uv: Double         // ← 加上uv
 }
 
 struct Condition: Codable {

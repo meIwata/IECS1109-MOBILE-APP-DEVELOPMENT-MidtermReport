@@ -62,6 +62,8 @@ struct ContentView: View {
                     .onTapGesture {
                         showFahrenheit.toggle()
                     } // 點選溫度這串字串可以改辦成華氏
+                Text("濕度：\(w.current.humidity)%")
+                Text("紫外線指數：\(w.current.uv, specifier: "%.1f")")
                 
                 AsyncImage(url: URL(string: "https:\(w.current.condition.icon)")) { image in
                     image
