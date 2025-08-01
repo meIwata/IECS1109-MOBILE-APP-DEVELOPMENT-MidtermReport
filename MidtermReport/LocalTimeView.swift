@@ -8,23 +8,26 @@
 import SwiftUI
 
 struct LocalTimeView: View {
-    @State private var currentTime: String = ""
-    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    let localTime: String // 來自 API，例如 "2025-08-01 21:02"
 
     var body: some View {
-        Text(currentTime)
-            .font(.headline)
-            .onAppear(perform: updateTime)
-            .onReceive(timer) { _ in
-                updateTime()
-            }
+        Text("\(formatLocalTime(localTime))") // 當地時間
+            .font(.system(size: 32, weight: .bold))
     }
 
-    private func updateTime() {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short // 顯示時:分
-        formatter.dateStyle = .none
-        formatter.locale = Locale.current // 依照當地語系
-        currentTime = formatter.string(from: Date())
+    func formatLocalTime(_ localTime: String) -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        inputFormatter.locale = Locale(identifier: "en_US_POSIX") // 保證格式解讀
+
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateFormat = "hh:mma"
+        outputFormatter.locale = Locale(identifier: "en_US_POSIX") // AM/PM
+
+        if let date = inputFormatter.date(from: localTime) {
+            return outputFormatter.string(from: date)
+        } else {
+            return localTime // 解析失敗就原樣顯示
+        }
     }
 }

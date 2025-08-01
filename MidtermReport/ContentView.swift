@@ -49,7 +49,7 @@ struct ContentView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 
-                LocalTimeView()
+                LocalTimeView(localTime: w.location.localtime) // <--- 傳入 API 拿到的當地時間
                 Text("目前天氣：\(w.current.condition.text)")
                 Text("溫度：\(showFahrenheit ? (w.current.temp_c * 9/5 + 32) : w.current.temp_c, specifier: "%.1f")\(showFahrenheit ? "°F" : "°C")")
                     .onTapGesture {

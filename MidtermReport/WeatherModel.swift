@@ -15,6 +15,7 @@ struct WeatherResponse: Codable {
 struct Location: Codable {
     let name: String
     let country: String
+    let localtime: String // <--- 新增
 }
 
 struct Current: Codable {
