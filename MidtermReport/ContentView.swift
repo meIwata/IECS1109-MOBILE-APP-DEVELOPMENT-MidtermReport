@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var weather: WeatherResponse?
     @State private var isLoading = false
     @State private var showFahrenheit = false // 一開始顯示是攝氏
+    @State private var shakeOffset: CGFloat = 0 // 新增搖動用的變數
     let service = WeatherService()
     
     var body: some View {
@@ -35,12 +36,6 @@ struct ContentView: View {
             }
             
             if let w = weather {
-//                HStack{
-//                    Image(systemName: "dot.scope")
-//                    Text("\(w.location.name), \(w.location.country)")
-//                        .font(.title)
-//                }
-                
                 HStack {
                     Image(systemName: "dot.scope")
                     Text("\(w.location.name), \(w.location.country)")
@@ -50,26 +45,50 @@ struct ContentView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
-                
                 LocalTimeView() // ←這裡插入當地時間顯示
                 Text("目前天氣：\(w.current.condition.text)")
                 Text("溫度：\(showFahrenheit ? (w.current.temp_c * 9/5 + 32) : w.current.temp_c, specifier: "%.1f")\(showFahrenheit ? "°F" : "°C")")
                     .onTapGesture {
                         showFahrenheit.toggle()
                     } // 點選溫度這串字串可以改辦成華氏
+                
                 AsyncImage(url: URL(string: "https:\(w.current.condition.icon)")) { image in
-                    image.resizable().frame(width: 85, height: 85)
+                    image
+                        .resizable()
+                        .frame(width: 85, height: 85)
+                        .offset(x: shakeOffset)
+                        .onAppear {
+                            startShaking()
+                        }
                 } placeholder: {
                     ProgressView()
                 }
+                .id(w.current.condition.icon)
             }
         }
         .padding()
         .frame(width: 300)
+    }
+    
+    // 加入搖動動畫function
+    func startShaking() {
+        shakeOffset = 0
+        var count = 0
+        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+            withAnimation(.easeInOut(duration: 0.05)) {
+                shakeOffset = shakeOffset == 0 ? 5 : -shakeOffset
+            }
+            count += 1
+            if count >= 12 { // 10秒
+                timer.invalidate()
+                withAnimation {
+                    shakeOffset = 0
+                }
+            }
+        }
     }
 }
 
 #Preview {
     ContentView()
 }
-
