@@ -35,7 +35,10 @@ struct ContentView: View {
         if weather == nil {
             // 還沒查詢時保持白色背景
             return LinearGradient(
-                gradient: Gradient(colors: [Color.white, Color.white]),
+                gradient: Gradient(colors: [
+                    Color(red: 0xF2/255.0, green: 0xF6/255.0, blue: 0xFA/255.0), // #F2F6FA
+                    Color(red: 0xEB/255.0, green: 0xED/255.0, blue: 0xF0/255.0)  // #EBEDF0
+                ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
