@@ -15,6 +15,27 @@ struct ContentView: View {
     @State private var isShaking = false
     let service = WeatherService()
     
+    // 將 WeatherAPI 圖標 URL 轉換為較大尺寸
+    private func getLargerIconURL(from originalURL: String) -> String {
+        // WeatherAPI 的圖標 URL 格式通常是：
+        // //cdn.weatherapi.com/weather/64x64/day/113.png
+        // //cdn.weatherapi.com/weather/64x64/night/113.png
+        
+        var largerURL = originalURL
+        
+        // 確保有 https 前綴
+        if largerURL.hasPrefix("//") {
+            largerURL = "https:" + largerURL
+        }
+        
+        // 將 64x64 替換為 128x128 以獲得更清晰的圖標
+        if largerURL.contains("64x64") {
+            largerURL = largerURL.replacingOccurrences(of: "64x64", with: "128x128")
+        }
+        
+        return largerURL
+    }
+    
     // 判斷是否為白天
     private var isDaytime: Bool {
         guard let weather = weather else { return true }
@@ -33,11 +54,11 @@ struct ContentView: View {
     // 背景漸層
     private var backgroundGradient: LinearGradient {
         if weather == nil {
-            // 還沒查詢時保持白色背景
+            // 還沒查詢時使用淺灰藍色背景
             return LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 0xF2/255.0, green: 0xF6/255.0, blue: 0xFA/255.0), // #F2F6FA
-                    Color(red: 0xEB/255.0, green: 0xED/255.0, blue: 0xF0/255.0)  // #EBEDF0
+                    Color(red: 0xf8/255.0, green: 0xfa/255.0, blue: 0xfc/255.0),
+                    Color(red: 0xf8/255.0, green: 0xfa/255.0, blue: 0xfc/255.0)
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -124,10 +145,10 @@ struct ContentView: View {
                 Text("紫外線指數：\(w.current.uv == 0 ? "0" : String(format: "%.1f", w.current.uv))")
                     .foregroundColor(textColor)
                 
-                AsyncImage(url: URL(string: "https:\(w.current.condition.icon)")) { image in
+                AsyncImage(url: URL(string: getLargerIconURL(from: w.current.condition.icon))) { image in
                     image
                         .resizable()
-                        .frame(width: 85, height: 85)
+                        .frame(width: 128, height: 128) // 這裡設更大
                         .rotationEffect(.degrees(shakeAngle))
                         .onAppear {
                             startShaking()
