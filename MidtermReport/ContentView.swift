@@ -7,20 +7,17 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var city = "Niseko"
+    @State private var city = "Quickborn"
     @State private var weather: WeatherResponse?
     @State private var isLoading = false
     @State private var showFahrenheit = false
     @State private var shakeAngle: Double = 0
     @State private var isShaking = false
+    @State private var showUVIcon = false
     let service = WeatherService()
     
     // 將 WeatherAPI 圖標 URL 轉換為較大尺寸
     private func getLargerIconURL(from originalURL: String) -> String {
-        // WeatherAPI 的圖標 URL 格式通常是：
-        // //cdn.weatherapi.com/weather/64x64/day/113.png
-        // //cdn.weatherapi.com/weather/64x64/night/113.png
-        
         var largerURL = originalURL
         
         // 確保有 https 前綴
@@ -91,6 +88,17 @@ struct ContentView: View {
         return weather == nil ? Color.black : Color.white
     }
     
+    // UV分級顏色
+    private func uvColor(for uv: Double) -> Color {
+        switch uv {
+        case 0..<3: return .green      // 0.0 ~ 2.999...
+        case 3..<6: return .yellow     // 3.0 ~ 5.999...
+        case 6..<8: return .orange     // 6.0 ~ 7.999...
+        case 8...:  return .red        // 8.0 以上
+        default:    return .gray
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 20) {
             TextField("輸入城市", text: $city)
@@ -142,13 +150,24 @@ struct ContentView: View {
                 Text("濕度：\(w.current.humidity)%")
                     .foregroundColor(textColor)
                 
-                Text("紫外線指數：\(w.current.uv == 0 ? "0" : String(format: "%.1f", w.current.uv))")
-                    .foregroundColor(textColor)
+                // 紫外線指數顯示與分級圖示
+                                if showUVIcon {
+                                    HStack(spacing: 8) {
+                                        Text("紫外線指數：")
+                                            .foregroundColor(textColor)
+                                        UVIndexIcon(color: uvColor(for: w.current.uv))
+                                    }
+                                    .onTapGesture { showUVIcon.toggle() }
+                                } else {
+                                    Text("紫外線指數：\(w.current.uv == 0 ? "0" : String(format: "%.1f", w.current.uv))")
+                                        .foregroundColor(textColor)
+                                        .onTapGesture { showUVIcon.toggle() }
+                                }
                 
                 AsyncImage(url: URL(string: getLargerIconURL(from: w.current.condition.icon))) { image in
                     image
                         .resizable()
-                        .frame(width: 128, height: 128) // 這裡設更大
+                        .frame(width: 128, height: 128) // 這裡設128
                         .rotationEffect(.degrees(shakeAngle))
                         .onAppear {
                             startShaking()

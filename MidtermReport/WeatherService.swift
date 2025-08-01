@@ -7,10 +7,10 @@
 import Foundation
 
 class WeatherService {
-    let apiKey = "f0f54816d5e842a1a48121637250702"
+    let indicator = "f0f54816d5e842a1a48121637250702"
     
     func fetchWeather(city: String, completion: @escaping (WeatherResponse?) -> Void) {
-        let urlStr = "https://api.weatherapi.com/v1/current.json?key=\(apiKey)&q=\(city)&lang=zh_tw"
+        let urlStr = "https://api.weatherapi.com/v1/current.json?key=\(indicator)&q=\(city)&lang=zh_tw"
         guard let url = URL(string: urlStr) else { completion(nil); return }
         
         URLSession.shared.dataTask(with: url) { data, _, _ in
