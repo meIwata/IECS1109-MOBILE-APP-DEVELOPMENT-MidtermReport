@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var city = "Yokohama"
+    @State private var city = "Niseko"
     @State private var weather: WeatherResponse?
     @State private var isLoading = false
     let service = WeatherService()
@@ -36,10 +36,11 @@ struct ContentView: View {
             if let w = weather {
                 Text("\(w.location.name), \(w.location.country)")
                     .font(.title)
+                LocalTimeView() // ←這裡插入當地時間顯示
                 Text("目前天氣：\(w.current.condition.text)")
                 Text("溫度：\(w.current.temp_c, specifier: "%.1f")°C")
                 AsyncImage(url: URL(string: "https:\(w.current.condition.icon)")) { image in
-                    image.resizable().frame(width: 64, height: 64)
+                    image.resizable().frame(width: 80, height: 80)
                 } placeholder: {
                     ProgressView()
                 }
