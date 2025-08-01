@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var city = "Niseko"
     @State private var weather: WeatherResponse?
     @State private var isLoading = false
+    @State private var showFahrenheit = false // 一開始顯示是攝氏
     let service = WeatherService()
     
     var body: some View {
@@ -34,13 +35,30 @@ struct ContentView: View {
             }
             
             if let w = weather {
-                Text("\(w.location.name), \(w.location.country)")
-                    .font(.title)
+//                HStack{
+//                    Image(systemName: "dot.scope")
+//                    Text("\(w.location.name), \(w.location.country)")
+//                        .font(.title)
+//                }
+                
+                HStack {
+                    Image(systemName: "dot.scope")
+                    Text("\(w.location.name), \(w.location.country)")
+                        .font(.title)
+                        .lineLimit(1)                // 僅一行
+                        .minimumScaleFactor(0.45)     // 最小縮放到原本的 45%
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                
                 LocalTimeView() // ←這裡插入當地時間顯示
                 Text("目前天氣：\(w.current.condition.text)")
-                Text("溫度：\(w.current.temp_c, specifier: "%.1f")°C")
+                Text("溫度：\(showFahrenheit ? (w.current.temp_c * 9/5 + 32) : w.current.temp_c, specifier: "%.1f")\(showFahrenheit ? "°F" : "°C")")
+                    .onTapGesture {
+                        showFahrenheit.toggle()
+                    } // 點選溫度這串字串可以改辦成華氏
                 AsyncImage(url: URL(string: "https:\(w.current.condition.icon)")) { image in
-                    image.resizable().frame(width: 80, height: 80)
+                    image.resizable().frame(width: 85, height: 85)
                 } placeholder: {
                     ProgressView()
                 }
