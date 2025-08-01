@@ -36,14 +36,25 @@ struct ContentView: View {
             }
             
             if let w = weather {
+//                HStack {
+//                    Image(systemName: "dot.scope")
+//                    Text("\(w.location.name), \(w.location.country)")
+//                        .font(.title)
+//                        .lineLimit(1)                // 僅一行
+//                        .minimumScaleFactor(0.45)     // 最小縮放到原本的 45%
+//                }
+//                .frame(maxWidth: .infinity, alignment: .center)
+                
+                
                 HStack {
                     Image(systemName: "dot.scope")
                     Text("\(w.location.name), \(w.location.country)")
-                        .font(.title)
-                        .lineLimit(1)                // 僅一行
-                        .minimumScaleFactor(0.45)     // 最小縮放到原本的 45%
+                        .font(.system(size: 32, weight: .bold))    // 預設大一點
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.1)                   // 最小可縮到原本 10%
+                        .layoutPriority(1)                         // 讓它優先佔滿空間
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
                 
                 LocalTimeView() // ←這裡插入當地時間顯示
                 Text("目前天氣：\(w.current.condition.text)")
@@ -63,14 +74,14 @@ struct ContentView: View {
                 } placeholder: {
                     ProgressView()
                 }
-                .id(w.current.condition.icon)
+                .id(w.current.condition.icon) // 加入id可以讓每次查詢都讓圖片搖動
             }
         }
         .padding()
         .frame(width: 300)
     }
     
-    // 加入搖動動畫function
+    // 加入圖片搖動動畫function
     func startShaking() {
         shakeOffset = 0
         var count = 0
