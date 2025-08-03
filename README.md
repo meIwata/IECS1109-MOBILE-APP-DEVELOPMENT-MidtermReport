@@ -58,3 +58,5 @@ MidtermReportUITests/
 ## 畫面預覽
 
 > 可於 Xcode Simulator 執行後，即時輸入城市查詢天氣，體驗互動式動畫效果。
+
+
