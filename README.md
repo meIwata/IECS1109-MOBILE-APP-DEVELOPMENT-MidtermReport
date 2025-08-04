@@ -63,4 +63,6 @@ MidtermReportUITests/
 ![畫面預覽](Screenshot/3.png)
 ![畫面預覽](Screenshot/4.png)
 ![畫面預覽](Screenshot/5.png)
+![畫面預覽](Screenshot/6.png)
+![畫面預覽](Screenshot/7.png)
 
